@@ -83,6 +83,15 @@ The Grafana dashboard tracks request rate, p95 prediction latency, error rate an
 | Load | 98,800 rows in `warehouse.db` table `orders_features` |
 | Best model | Logistic regression (C = 0.1): accuracy 0.906, F1 0.939, ROC AUC 0.960, vs. 0.747 majority baseline |
 
+## Deployment status
+
+| Component | Status |
+| --- | --- |
+| ETL, training, MLflow tracking, Flask API, tests | Executed locally and in GitHub Actions |
+| GitHub Actions CI/CD | Running on every push |
+| Airflow DAG | Configured; run with the Airflow commands above |
+| Prometheus and Grafana | Configured; start with `docker compose up` |
+
 ## Configuration
 
 | Variable | Default | Use |
