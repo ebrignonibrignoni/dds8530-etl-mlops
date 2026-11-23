@@ -1,0 +1,11 @@
+data/
+models/
+logs/
+mlruns/
+mlartifacts/
+mlflow.db
+__pycache__/
+*.pyc
+.venv/
+venv/
+pipeline_result.json

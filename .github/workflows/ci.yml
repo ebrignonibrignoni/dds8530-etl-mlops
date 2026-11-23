@@ -1,0 +1,50 @@
+name: ETL and MLOps CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-train-package:
+    runs-on: ubuntu-latest
+    env:
+      MLFLOW_DISABLE_AGENT_HINT: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate source data
+        run: python scripts/generate_sources.py
+
+      - name: Run ETL and model training
+        run: python run_pipeline.py | tee pipeline_result.json
+
+      - name: Run tests (transform, API, metrics)
+        run: pytest -v
+
+      - name: Quality gate - model must beat baseline
+        run: |
+          python -c "import json; c=json.load(open('models/model_card.json')); \
+          assert c['accuracy'] > c['baseline_accuracy'], c; \
+          print('Gate passed:', round(c['accuracy'],4), '>', round(c['baseline_accuracy'],4))"
+
+      - name: Build API container image
+        run: docker build -t order-profitability-api:${{ github.sha }} .
+
+      - name: Upload model and logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-${{ github.sha }}
+          path: |
+            models/
+            logs/pipeline.log
+            pipeline_result.json

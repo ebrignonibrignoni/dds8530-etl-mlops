@@ -1,0 +1,16 @@
+{
+  "title": "Order Profitability Model API",
+  "refresh": "10s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {"type": "timeseries", "title": "Requests per second by endpoint", "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+     "targets": [{"expr": "sum by (endpoint) (rate(api_requests_total[1m]))"}]},
+    {"type": "timeseries", "title": "p95 prediction latency (s)", "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+     "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(api_request_latency_seconds_bucket{endpoint=\"/predict\"}[5m])))"}]},
+    {"type": "stat", "title": "Error rate (5xx share)", "gridPos": {"x": 0, "y": 8, "w": 12, "h": 6},
+     "targets": [{"expr": "sum(rate(api_requests_total{status=\"500\"}[5m])) / sum(rate(api_requests_total[5m]))"}]},
+    {"type": "piechart", "title": "Predicted class mix (drift signal)", "gridPos": {"x": 12, "y": 8, "w": 12, "h": 6},
+     "targets": [{"expr": "sum by (predicted_class) (model_predictions_total)"}]}
+  ],
+  "schemaVersion": 39
+}
